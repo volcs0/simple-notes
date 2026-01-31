@@ -1,0 +1,29 @@
+name: Deploy to unRAID
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to unRAID via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.UNRAID_HOST }}
+          username: ${{ secrets.UNRAID_USER }}
+          key: ${{ secrets.UNRAID_SSH_KEY }}
+          port: 22
+          script: |
+            cd /mnt/user/appdata/simplenotes
+            git pull origin main
+            docker-compose up -d --build
