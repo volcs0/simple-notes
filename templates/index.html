@@ -8,12 +8,15 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
         h1 { color: #333; }
-        .note-input { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; }
+        .note-input { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; min-width: 200px; }
+        select { padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; background: white; }
         button { padding: 12px 24px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
         button:hover { background: #0056b3; }
-        .note { background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .note span { flex: 1; }
+        .note { background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); gap: 10px; }
+        .note-content { flex: 1; }
+        .note-text { margin: 0 0 5px 0; }
+        .note-category { font-size: 12px; color: #666; background: #e9ecef; padding: 2px 8px; border-radius: 12px; display: inline-block; }
         .delete-btn { background: #e91e8c; padding: 8px 16px; }
         .delete-btn:hover { background: #c4177a; }
     </style>
@@ -22,6 +25,13 @@
     <h1>Simple Notes</h1>
     <div class="note-input">
         <input type="text" id="noteInput" placeholder="Enter a note..." onkeypress="if(event.key==='Enter')addNote()">
+        <select id="categorySelect">
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Ideas">Ideas</option>
+            <option value="Todo">Todo</option>
+        </select>
         <button onclick="addNote()">Add</button>
     </div>
     <div id="notes"></div>
@@ -33,7 +43,10 @@
             const container = document.getElementById('notes');
             container.innerHTML = notes.map(note => `
                 <div class="note">
-                    <span>${note.text}</span>
+                    <div class="note-content">
+                        <p class="note-text">${note.text}</p>
+                        <span class="note-category">${note.category || 'General'}</span>
+                    </div>
                     <button class="delete-btn" onclick="deleteNote(${note.id})">Delete</button>
                 </div>
             `).join('');
@@ -41,12 +54,13 @@
 
         async function addNote() {
             const input = document.getElementById('noteInput');
+            const categorySelect = document.getElementById('categorySelect');
             const text = input.value.trim();
             if (!text) return;
             await fetch('/api/notes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
+                body: JSON.stringify({ text, category: categorySelect.value })
             });
             input.value = '';
             loadNotes();

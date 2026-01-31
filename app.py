@@ -31,7 +31,11 @@ def get_notes():
 @app.route("/api/notes", methods=["POST"])
 def add_note():
     notes = load_notes()
-    note = {"id": len(notes) + 1, "text": request.json["text"]}
+    note = {
+        "id": len(notes) + 1,
+        "text": request.json["text"],
+        "category": request.json.get("category", "General")
+    }
     notes.append(note)
     save_notes(notes)
     return jsonify(note), 201
