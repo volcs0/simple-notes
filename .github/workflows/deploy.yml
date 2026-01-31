@@ -26,4 +26,6 @@ jobs:
           script: |
             cd /mnt/user/appdata/simplenotes
             git pull origin main
-            docker-compose up -d --build
+            docker-compose down
+            docker-compose build --no-cache
+            docker-compose up -d

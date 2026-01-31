@@ -3,7 +3,7 @@ import json
 import os
 
 app = Flask(__name__)
-NOTES_FILE = "notes.json"
+NOTES_FILE = "/app/data/notes.json"
 
 
 def load_notes():
